@@ -2,6 +2,7 @@
 //
 // 把站点需要的三个东西拷进 dist/：
 //   index.html   外壳
+//   favicon.png  标签页图标
 //   runtime/     小程序运行时
 //   app/         从「年猪宴小程序」生成的产物（含 bundle.js 与全部素材）
 //
@@ -32,7 +33,7 @@ if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
   process.exit(1);
 }
 
-const ENTRIES = ['index.html', 'runtime', 'app'];
+const ENTRIES = ['index.html', 'favicon.png', 'runtime', 'app'];
 
 for (const name of ENTRIES) {
   const src = path.join(H5_ROOT, name);
