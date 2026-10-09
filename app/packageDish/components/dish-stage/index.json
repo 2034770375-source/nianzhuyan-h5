@@ -1,0 +1,9 @@
+{
+  "component": true,
+  "styleIsolation": "apply-shared",
+  "usingComponents": {
+    "gold-dust": "../../../components/gold-dust/index",
+    "firework": "../../../components/firework/index",
+    "elf-actor": "../elf-actor/index"
+  }
+}

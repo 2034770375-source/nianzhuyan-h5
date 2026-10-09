@@ -1,0 +1,220 @@
+<view class="stage map">
+  <view class="warm-backdrop"></view>
+  <firework></firework>
+
+  <view
+    class="map__viewport"
+    bindtouchstart="onTouchStart"
+    catchtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
+  >
+    <view class="map__canvas {{entered ? 'is-in' : ''}}" style="{{canvasStyle}}">
+      <!-- 已经摊开的那一段纸：垫在折面下面，给整条纸一圈投影 -->
+      <view class="fold-paper" style="{{paperStyle}}"></view>
+      <!-- 六折风琴本：每折 400 宽，摊开时依次从折缝里长出来 -->
+      <view wx:for="{{panels}}" wx:key="k" class="fold" style="{{item.style}}">
+        <image class="fold__bg" src="./assets/map_bg.png" style="{{item.sliceStyle}}" mode="scaleToFill"></image>
+
+        <view
+          wx:if="{{item.hasPig}}"
+          class="pig {{patting ? 'is-patting' : ''}} {{yawning ? 'is-yawning' : ''}} {{feast ? 'is-feast' : ''}}"
+          style="{{item.sliceStyle}}"
+        >
+          <view class="pig__breathe">
+            <image class="map__full" src="./assets/map_pig.png" mode="scaleToFill"></image>
+            <image
+              wx:if="{{item.layers.blush}}"
+              class="pig__layer pig__blush"
+              src="./assets/pig_blush.png"
+              style="{{layerStyle.blush}}"
+            ></image>
+            <image
+              wx:if="{{item.layers.cover}}"
+              class="pig__layer pig__cover {{blink || yawning ? 'is-on' : ''}}"
+              src="./assets/pig_cover.png"
+              style="{{layerStyle.cover}}"
+            ></image>
+            <image
+              wx:if="{{item.layers.eyesHappy}}"
+              class="pig__layer pig__eyes-happy {{patting ? 'is-on' : ''}}"
+              src="./assets/pig_eyesHappy.png"
+              style="{{layerStyle.eyesHappy}}"
+            ></image>
+            <image
+              wx:if="{{item.layers.mouth}}"
+              class="pig__layer pig__mouth {{yawning ? 'is-on' : ''}}"
+              src="./assets/pig_mouth.png"
+              style="{{layerStyle.mouth}}"
+            ></image>
+            <image
+              wx:if="{{item.layers.tongue}}"
+              class="pig__layer pig__tongue {{tongue ? 'is-on' : ''}}"
+              src="./assets/pig_tongue.png"
+              style="{{layerStyle.tongue}}"
+            ></image>
+          </view>
+        </view>
+
+        <image
+          wx:for="{{item.plates}}"
+          wx:for-item="pl"
+          wx:key="id"
+          class="map__plate {{pl.fresh ? 'is-drop' : ''}}"
+          src="{{pl.src}}"
+          style="{{pl.style}}"
+          mode="scaleToFill"
+        ></image>
+
+        <view
+          wx:for="{{item.hotspots}}"
+          wx:for-item="hs"
+          wx:key="id"
+          class="hotspot {{glowId === hs.id ? 'is-hot' : ''}} {{hs.done ? 'is-done' : ''}}"
+          style="{{hs.boxStyle}}"
+          data-id="{{hs.id}}"
+          data-panel="{{hs.panel}}"
+          catchtap="onHotspotTap"
+        >
+          <view class="hotspot__glow" style="{{hs.glowStyle}}"></view>
+          <view class="hotspot__ring"></view>
+        </view>
+
+        <view
+          wx:for="{{item.secrets}}"
+          wx:for-item="sc"
+          wx:key="key"
+          class="map__secret"
+          style="{{sc.boxStyle}}"
+          data-key="{{sc.key}}"
+          data-panel="{{sc.panel}}"
+          catchtap="onSecretTap"
+        >
+          <image
+            class="map__secret-img {{popKey === sc.key ? 'is-pop' : ''}} {{sc.found ? 'is-found' : ''}}"
+            src="{{sc.src}}"
+            style="{{sc.style}}"
+            mode="scaleToFill"
+          ></image>
+        </view>
+
+        <!-- 折痕：左缘暗部 + 折面内部的纸面弧度；都不挡点击 -->
+        <view class="fold__crease"></view>
+        <view class="fold__curve"></view>
+        <view class="fold__lip"></view>
+        <view class="fold__seam"></view>
+      </view>
+
+      <!-- 合起时盖在最上面的封面，向右拉开就淡出 -->
+      <view class="book-cover" style="{{coverStyle}}">
+        <!--
+          吊牌底图：顶部 45° 切角 + 横向长圆槽 + 开口挂绳 + 金线包边 / 内框 / 底部横线
+          + 右侧两簇线描花卉，整块形制烘在一张 PNG 里（小程序对 clip-path / mask 的
+          兼容性不一，烘成图最稳）。要改形状改这个脚本：
+          年猪宴-预览与截图/封面改版/_tools/make_tag_asset.mjs
+        -->
+        <image
+          class="book-cover__tag"
+          src="./assets/cover_tag.png"
+          mode="scaleToFill"
+        ></image>
+        <!-- 封面主视觉：拼豆小猪（筷子伸到吊牌右缘） -->
+        <view class="book-cover__art">
+          <image
+            class="book-cover__art-img"
+            src="./assets/cover_pig.png"
+            mode="scaleToFill"
+          ></image>
+          <!-- 用同一张图裁一块盖在爱心上，做「轻轻跳一下」 -->
+          <view class="book-cover__heart">
+            <image
+              class="book-cover__heart-img"
+              src="./assets/cover_pig.png"
+              mode="scaleToFill"
+            ></image>
+          </view>
+        </view>
+        <!-- 竖排书名：年 / 猪 / 宴 三个一样的方框，竖排叠成一条 -->
+        <view class="book-cover__title">
+          <view class="book-cover__title-box"><text>年</text></view>
+          <view class="book-cover__title-box"><text>猪</text></view>
+          <view class="book-cover__title-box"><text>宴</text></view>
+        </view>
+        <view class="book-cover__hint">
+          <text class="book-cover__hint-text">向右拉开</text>
+          <view class="book-cover__arrow"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="map__error" wx:if="{{imgFailed}}" catchtap="onRetryImg">
+      <view class="map__error-text">年猪长地图没能加载出来</view>
+      <view class="map__error-btn">点击重试</view>
+    </view>
+  </view>
+
+  <view class="map__head" style="{{headStyle}}">
+    <view class="map__title">年猪宴</view>
+    <view class="map__sub">徽州年味 · 一桌好菜</view>
+    <view class="map__progress">
+      <view class="map__progress-pig"></view>
+      <text>{{progressText}}</text>
+    </view>
+    <view class="map__progress map__progress--secret" catchtap="onSecretPillTap">
+      <text>{{secretsText}}</text>
+    </view>
+    <view
+      class="map__progress map__progress--action"
+      wx:if="{{showFeastBtn}}"
+      catchtap="goBanquet"
+    >
+      <text>领我的年猪宴 ›</text>
+    </view>
+  </view>
+
+  <view class="dish-tag" wx:if="{{tag.show}}" style="{{tag.style}}">
+    <view class="dish-tag__box">{{tag.name}}</view>
+    <view class="dish-tag__part">{{tag.part}}</view>
+  </view>
+
+  <view class="map__guide" wx:if="{{guideShow}}">
+    <view class="map__guide-hand"></view>
+    <view class="map__guide-text">左右滑动看看，点亮点心</view>
+  </view>
+
+  <view class="map__tools" wx:if="{{isOpen}}">
+    <view class="view-toggle {{fullView ? 'is-full' : ''}}" catchtap="onToggleFullView">
+      <view class="view-toggle__pig">
+        <view class="view-toggle__pig-body"></view>
+        <view class="view-toggle__pig-head"></view>
+      </view>
+      <view class="view-toggle__label">{{fullView ? '看细节' : '看整只猪'}}</view>
+    </view>
+    <view class="fold-btn" catchtap="onFoldClose">
+      <view class="fold-btn__icon">
+        <view class="fold-btn__leaf fold-btn__leaf--a"></view>
+        <view class="fold-btn__leaf fold-btn__leaf--b"></view>
+      </view>
+      <view class="fold-btn__label">合上</view>
+    </view>
+  </view>
+
+  <view class="mute-btn {{muted ? 'mute-btn--off' : ''}}" catchtap="onToggleMute">
+    <view class="mute-btn__icon">
+      <view class="mute-btn__horn"></view>
+      <view class="mute-btn__cone"></view>
+      <view class="mute-btn__wave"></view>
+    </view>
+  </view>
+
+  <view class="secret-toast" wx:if="{{secretToast}}">{{secretToast}}</view>
+
+  <view class="feast" wx:if="{{feast}}">
+    <view class="feast__flash"></view>
+    <view class="feast__burst" wx:for="{{feastBursts}}" wx:key="index" style="{{item}}"></view>
+    <view class="feast__text">开席喽——</view>
+  </view>
+
+  <gold-dust count="16"></gold-dust>
+  <view class="paper"></view>
+</view>

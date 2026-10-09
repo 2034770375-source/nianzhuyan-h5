@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "gold-dust": "/components/gold-dust/index",
+    "firework": "/components/firework/index"
+  },
+  "navigationStyle": "custom",
+  "disableScroll": true
+}

@@ -1,0 +1,44 @@
+name: 发布 H5 到 GitHub Pages
+
+# 推到 main 就自动发布；也可以在仓库的 Actions 页面手动点一次
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 只给发布 Pages 需要的权限，别的都不给
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 连着推两次时，取消还没跑完的那次，线上只会是最后一次的结果
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # dist.mjs 只用 Node 内置模块，装 Node 是为了有 node 可跑，不装任何依赖
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 组装 dist/
+        run: node _build/dist.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

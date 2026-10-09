@@ -1,0 +1,38 @@
+.dust {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.dust__p {
+  position: absolute;
+  top: -8vh;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff4d0 0%, #efb84a 45%, rgba(239, 184, 74, 0) 100%);
+  animation-name: np-dust-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes np-dust-fall {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.7);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate3d(var(--np-drift), 118vh, 0) scale(1);
+    opacity: 0;
+  }
+}

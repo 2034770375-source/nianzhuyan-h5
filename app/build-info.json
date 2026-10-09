@@ -1,0 +1,26 @@
+{
+  "source": "D:\\codex文件\\年猪宴小程序",
+  "builtAt": "2026-10-09T15:25:22.436Z",
+  "fingerprint": "407d2769afcf",
+  "counts": {
+    "files": 114,
+    "js": 23,
+    "wxml": 14,
+    "wxss": 9,
+    "assets": 52
+  },
+  "sourceBytes": 2231227,
+  "bundleBytes": 1042880,
+  "pages": [
+    "pages/entry/index",
+    "pages/map/index",
+    "pages/banquet/index",
+    "pages/origin/index",
+    "packageDish/pages/mifu/index",
+    "packageDish/pages/shazhucai/index",
+    "packageDish/pages/hongyun/index",
+    "packageDish/pages/feichang/index",
+    "packageDish/pages/nuomi/index",
+    "packageDish/pages/chouguiyu/index"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "dish-stage": "../../components/dish-stage/index"
+  },
+  "navigationStyle": "custom",
+  "disableScroll": true
+}

@@ -1,0 +1,243 @@
+.dish-page {
+  background: #fff6e9;
+}
+
+.dish-page__head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(58rpx + env(safe-area-inset-top));
+  text-align: center;
+  z-index: 30;
+  animation: np-fade-in 700ms ease-out;
+}
+
+.dish-page__touch {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+}
+
+.dish-page__food {
+  position: relative;
+  width: 620rpx;
+  height: 620rpx;
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.dish-page__food.is-in {
+  animation: np-dish-in 640ms cubic-bezier(0.34, 1.46, 0.64, 1) forwards;
+}
+
+.dish-page__img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  animation: np-dish-float 4.4s ease-in-out infinite;
+}
+
+/* --------------------------------- 热气 --------------------------------- */
+
+.steam {
+  position: absolute;
+  top: 21%;
+  border-radius: 50% 50% 44% 44%;
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.5) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(7rpx);
+  opacity: 0;
+  z-index: 6;
+  pointer-events: none;
+  animation-name: np-steam;
+  animation-duration: 4.5s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes np-steam {
+  0% {
+    transform: translateY(30rpx) scale(0.66);
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.5;
+  }
+  62% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-170rpx) scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------- 配菜装饰 -------------------------------- */
+
+.deco {
+  position: absolute;
+  z-index: 7;
+  animation-name: np-deco-float;
+  animation-duration: 4.6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.deco__img {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8rpx 14rpx rgba(142, 27, 20, 0.14));
+}
+
+.deco.is-pop {
+  animation: np-deco-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes np-deco-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--np-deco-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(-12rpx) rotate(var(--np-deco-rotate, 0deg));
+  }
+}
+
+@keyframes np-deco-pop {
+  0% {
+    transform: scale(1) rotate(var(--np-deco-rotate, 0deg));
+  }
+  55% {
+    transform: scale(1.22) rotate(var(--np-deco-rotate, 0deg));
+  }
+  100% {
+    transform: scale(1) rotate(var(--np-deco-rotate, 0deg));
+  }
+}
+
+/* -------------------------------- 底部文案 -------------------------------- */
+
+.dish-page__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(56rpx + env(safe-area-inset-bottom));
+  text-align: center;
+  z-index: 30;
+  /* 右下角是「回」按钮（宽 64px）：点阵字比原来的系统字宽，右侧留出按钮的位置，
+     文案就不会压到按钮上。留白后最长的「故事 / 事实」两行仍然是居中的 */
+  padding-right: 170rpx;
+}
+
+.dish-page__story {
+  font-size: 28rpx;
+  letter-spacing: 3rpx;
+  color: #8e1b14;
+  text-shadow: 0 2rpx 6rpx rgba(255, 246, 233, 0.9);
+}
+
+.dish-page__story-idx {
+  display: inline-block;
+  margin-right: 14rpx;
+  padding: 2rpx 16rpx;
+  border-radius: 22rpx;
+  background: rgba(216, 52, 42, 0.12);
+  border: 2rpx solid rgba(216, 52, 42, 0.35);
+  font-size: 28rpx;
+  color: #d8342a;
+}
+
+.dish-page__fact {
+  margin-top: 12rpx;
+  padding: 0 40rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  letter-spacing: 1rpx;
+  color: rgba(58, 43, 37, 0.82);
+}
+
+.dish-page__origin {
+  display: inline-block;
+  margin-top: 16rpx;
+  padding: 12rpx 36rpx;
+  border-radius: 44rpx;
+  border: 3rpx solid rgba(216, 52, 42, 0.45);
+  background: rgba(255, 252, 244, 0.88);
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  color: #a3201a;
+  box-shadow: 0 6rpx 16rpx rgba(142, 27, 20, 0.08);
+}
+
+/* ------------------------------ 右下角返回按钮 ------------------------------ */
+
+.back-btn {
+  position: absolute;
+  right: calc(44rpx + env(safe-area-inset-right));
+  bottom: calc(150rpx + env(safe-area-inset-bottom));
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #e5574a 0%, #d8342a 60%, #a3201a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 30rpx rgba(142, 27, 20, 0.28);
+  z-index: 50;
+}
+
+.back-btn__ring {
+  position: absolute;
+  left: 8rpx;
+  top: 8rpx;
+  right: 8rpx;
+  bottom: 8rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(239, 184, 74, 0.95);
+  animation: np-breathe 2.4s ease-in-out infinite;
+}
+
+.back-btn__label {
+  font-size: 56rpx;
+  font-weight: 400;
+  color: #ffe7a8;
+  text-shadow: 0 3rpx 0 rgba(142, 27, 20, 0.45);
+}
+
+/* --------------------------------- 入场 --------------------------------- */
+
+@keyframes np-dish-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  66% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes np-dish-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(var(--np-dish-scale, 1));
+  }
+  50% {
+    transform: translateY(-8rpx) scale(var(--np-dish-scale, 1));
+  }
+}

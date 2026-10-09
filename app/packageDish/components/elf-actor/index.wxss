@@ -1,0 +1,305 @@
+.elf {
+  position: absolute;
+  z-index: 8;
+}
+
+.elf--flip {
+  transform: scaleX(-1);
+}
+
+.elf__inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  animation: np-elf-idle 3.4s ease-in-out infinite;
+}
+
+.elf__body,
+.elf__arm {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 肩点：与生成素材时的 (176,168) / (256,320) 对齐 */
+.elf__arm {
+  transform-origin: 68.75% 52.5%;
+  animation: np-elf-arm-idle 3.4s ease-in-out infinite;
+}
+
+/* ---------------------- 常态：轻轻呼吸、小幅晃动 ---------------------- */
+
+@keyframes np-elf-idle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6rpx) rotate(-1.4deg);
+  }
+}
+
+@keyframes np-elf-arm-idle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* --------------- 点满三次之后：待机里会多一个小动作 --------------- */
+
+.elf.is-trained .elf__inner {
+  animation: np-elf-trained 9s ease-in-out infinite;
+}
+
+@keyframes np-elf-trained {
+  0%,
+  66%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  73% {
+    transform: translateY(-5rpx) rotate(-2.5deg);
+  }
+  80% {
+    transform: translateY(2rpx) rotate(2deg);
+  }
+  87% {
+    transform: translateY(-3rpx) rotate(-1.5deg);
+  }
+  93% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* ---------------------- 第 1 次：抬手夹菜送到嘴边 ---------------------- */
+
+.elf__inner.is-act1 {
+  animation-name: np-elf-act1-body;
+  animation-timing-function: cubic-bezier(0.34, 1.2, 0.64, 1);
+  animation-iteration-count: 1;
+}
+
+.elf__arm.is-act1 {
+  animation-name: np-elf-act1-arm;
+  animation-timing-function: cubic-bezier(0.34, 1.2, 0.64, 1);
+  animation-iteration-count: 1;
+}
+
+@keyframes np-elf-act1-arm {
+  0% {
+    transform: rotate(0deg);
+  }
+  14% {
+    transform: rotate(-34deg);
+  }
+  30% {
+    transform: rotate(-24deg);
+  }
+  46% {
+    transform: rotate(14deg);
+  }
+  62% {
+    transform: rotate(4deg);
+  }
+  78% {
+    transform: rotate(-54deg);
+  }
+  90% {
+    transform: rotate(-42deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes np-elf-act1-body {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  14% {
+    transform: translateY(-8rpx) rotate(-3deg) scale(1.02);
+  }
+  46% {
+    transform: translateY(4rpx) translateX(8rpx) rotate(4deg) scale(1.03);
+  }
+  78% {
+    transform: translateY(-10rpx) rotate(-4deg) scale(1.04);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+/* ---------------------- 第 2 次：举起菜吹一吹热气 ---------------------- */
+
+.elf__inner.is-act2 {
+  animation-name: np-elf-act2-body;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+.elf__arm.is-act2 {
+  animation-name: np-elf-act2-arm;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+@keyframes np-elf-act2-arm {
+  0% {
+    transform: rotate(0deg);
+  }
+  22% {
+    transform: rotate(-54deg);
+  }
+  42% {
+    transform: rotate(-48deg);
+  }
+  64% {
+    transform: rotate(-52deg);
+  }
+  82% {
+    transform: rotate(-26deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes np-elf-act2-body {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  22% {
+    transform: translateY(-8rpx) rotate(-3deg) scale(1.02);
+  }
+  45% {
+    transform: translateY(-3rpx) rotate(3.5deg) scale(1.03);
+  }
+  70% {
+    transform: translateY(-6rpx) rotate(2deg) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+/* 吹出来的那口热气 */
+.elf__puff {
+  position: absolute;
+  left: 14%;
+  top: 14%;
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.4) 46%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  animation: np-elf-puff 900ms ease-out 280ms both;
+}
+
+@keyframes np-elf-puff {
+  0% {
+    transform: scale(0.4) translateY(0);
+    opacity: 0;
+  }
+  32% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(2.2) translateY(-16rpx);
+    opacity: 0;
+  }
+}
+
+/* ---------------------- 第 3 次：开心地转个圈，掉颗星 ---------------------- */
+
+.elf__inner.is-act3 {
+  animation-name: np-elf-act3-body;
+  animation-timing-function: cubic-bezier(0.36, 0.9, 0.4, 1);
+  animation-iteration-count: 1;
+}
+
+.elf__arm.is-act3 {
+  animation-name: np-elf-act3-arm;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+@keyframes np-elf-act3-body {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  22% {
+    transform: rotate(-14deg) scale(1.05);
+  }
+  62% {
+    transform: rotate(360deg) scale(1.06);
+  }
+  82% {
+    transform: rotate(372deg) scale(1.02);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes np-elf-act3-arm {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-62deg);
+  }
+  72% {
+    transform: rotate(-72deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* 掉下来的那颗小星星 */
+.elf__star {
+  position: absolute;
+  left: 22%;
+  top: 18%;
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #ffffff 0%, #ffe7a8 38%, rgba(239, 184, 74, 0) 72%);
+  box-shadow: 0 0 20rpx rgba(255, 214, 150, 0.95);
+  animation: np-elf-star 1200ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+
+@keyframes np-elf-star {
+  0% {
+    transform: translateY(0) scale(0.3);
+    opacity: 0;
+  }
+  18% {
+    transform: translateY(-16rpx) scale(1.15);
+    opacity: 1;
+  }
+  64% {
+    transform: translateY(120rpx) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(196rpx) scale(0.45);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,8 @@
+<view class="dust">
+  <view
+    class="dust__p"
+    wx:for="{{items}}"
+    wx:key="id"
+    style="{{item.style}}"
+  ></view>
+</view>

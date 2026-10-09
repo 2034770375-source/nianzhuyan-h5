@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/entry/index",
+    "pages/map/index",
+    "pages/banquet/index",
+    "pages/origin/index"
+  ],
+  "subpackages": [
+    {
+      "root": "packageDish",
+      "name": "dish",
+      "pages": [
+        "pages/mifu/index",
+        "pages/shazhucai/index",
+        "pages/hongyun/index",
+        "pages/feichang/index",
+        "pages/nuomi/index",
+        "pages/chouguiyu/index"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/map/index": {
+      "network": "all",
+      "packages": ["dish"]
+    }
+  },
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#FFF6E9",
+    "backgroundTextStyle": "light",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

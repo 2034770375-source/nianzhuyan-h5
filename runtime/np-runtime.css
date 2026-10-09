@@ -1,0 +1,110 @@
+/* 年猪宴 · H5 运行时样式
+   只放"设备外壳"和"小程序标签的默认盒模型"，页面自己的样式全部来自工程 WXSS。 */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #241612;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#np-stage {
+  position: fixed;
+  inset: 0;
+}
+
+/* 手机壳：375×812 逻辑画布，按窗口缩放 */
+#np-device {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 375px;
+  height: 812px;
+  margin: 0;
+  transform-origin: 50% 50%;
+  overflow: hidden;
+  background: #fff6e9;
+}
+
+/* 桌面端才画圆角与投影，手机端铺满 */
+body.np-desktop #np-device {
+  border-radius: 28px;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.55), 0 0 0 8px rgba(255, 246, 233, 0.06);
+}
+
+#np-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* 小程序页面全部 disableScroll，所以设备内不需要任何浏览器手势：
+     这一条同时挡掉下拉刷新、边缘返回手势和双指缩放（双指缩放由页面自己实现） */
+  touch-action: none;
+  /* 小程序里没有文本选择和图片拖拽，浏览器默认行为会打断拖拽手势，这里一并关掉 */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#np-screen img {
+  -webkit-user-drag: none;
+}
+
+/* 小程序里的 page 就是页面根节点：CSS 变量、背景、字体都定义在它上面 */
+page {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* 页面栈里的每一页 */
+page.np-page {
+  will-change: transform;
+}
+
+/* 小程序标签的默认盒模型（对应 app.wxss 里的 view/image/text 规则） */
+view {
+  display: block;
+  box-sizing: border-box;
+}
+
+text {
+  display: inline;
+  box-sizing: border-box;
+}
+
+/* 小程序的 <image> 被浏览器解析成 <img>，这里补上它的默认盒模型 */
+img.np-image {
+  display: block;
+  box-sizing: border-box;
+}
+
+canvas {
+  display: block;
+}
+
+/* 启动遮罩：运行时没起来时不至于白屏 */
+#np-boot {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #3a2b25;
+  color: #ffe7a8;
+  font: 14px/1.8 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  letter-spacing: 2px;
+  z-index: 99;
+}
+
+#np-boot.is-done {
+  display: none;
+}
+
+/* 出错时把信息显示出来，方便排查 */
+#np-boot .np-err {
+  max-width: 80%;
+  color: #ffb4a8;
+  font-size: 12px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}

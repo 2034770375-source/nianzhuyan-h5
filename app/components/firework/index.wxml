@@ -1,0 +1,8 @@
+<view class="fw" wx:if="{{enabled}}">
+  <view
+    class="fw__burst"
+    wx:for="{{bursts}}"
+    wx:key="id"
+    style="{{item.style}}"
+  ></view>
+</view>

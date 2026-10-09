@@ -1,0 +1,18 @@
+<view class="stage entry" bindtap="onTap">
+  <view class="warm-backdrop"></view>
+  <firework></firework>
+  <gold-dust count="14"></gold-dust>
+
+  <view class="entry__seal {{shown ? 'is-in' : ''}}">
+    <view class="entry__ring"></view>
+    <view class="entry__chars">
+      <text>年</text>
+      <text>猪</text>
+      <text>宴</text>
+    </view>
+  </view>
+
+  <view class="entry__sub {{shown ? 'is-in' : ''}}">徽州年味 · 一桌好菜</view>
+  <view class="entry__hint">轻触屏幕进入</view>
+  <view class="paper"></view>
+</view>

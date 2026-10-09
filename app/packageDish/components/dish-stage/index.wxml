@@ -1,0 +1,77 @@
+<view class="stage dish-page" wx:if="{{view}}" style="--np-accent:{{view.accent}}">
+  <view class="warm-backdrop"></view>
+  <firework></firework>
+  <gold-dust count="22"></gold-dust>
+
+  <view class="dish-page__head">
+    <view class="dish-title">{{view.title}}</view>
+    <view class="dish-subtitle">{{view.subtitle}}</view>
+  </view>
+
+  <view
+    class="dish-page__touch"
+    bindtouchstart="onTouchStart"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
+  >
+    <view class="dish-page__food {{entered ? 'is-in' : ''}}">
+      <image
+        class="dish-page__img"
+        src="{{view.dishImg}}"
+        mode="aspectFit"
+        style="{{view.imgStyle}}"
+      ></image>
+
+      <view
+        class="steam"
+        wx:for="{{view.steam}}"
+        wx:key="index"
+        style="{{item.style}}"
+      ></view>
+
+      <view
+        class="deco {{popIndex === index ? 'is-pop' : ''}}"
+        wx:for="{{view.decos}}"
+        wx:key="index"
+        style="{{item.style}}"
+        data-index="{{index}}"
+        catchtap="onDecoTap"
+      >
+        <image class="deco__img" src="{{item.src}}" mode="aspectFit"></image>
+      </view>
+
+      <elf-actor
+        body="{{view.elf.body}}"
+        arm="{{view.elf.arm}}"
+        sound="{{view.elf.sound}}"
+        duration="{{view.elf.action}}"
+        flip="{{view.elf.flip}}"
+        pos-style="{{view.elfStyle}}"
+        dish-id="{{view.id}}"
+      ></elf-actor>
+    </view>
+  </view>
+
+  <view class="dish-page__foot">
+    <view class="dish-page__story">
+      <text class="dish-page__story-idx">第 {{view.index}} 道</text>
+      <text>{{view.story}}</text>
+    </view>
+    <view class="dish-page__fact"><text>{{view.fact}}</text></view>
+    <view class="dish-page__origin" catchtap="goOrigin">这道菜的来历 ›</view>
+  </view>
+
+  <view class="mute-btn {{muted ? 'mute-btn--off' : ''}}" catchtap="onToggleMute">
+    <view class="mute-btn__icon">
+      <view class="mute-btn__horn"></view>
+      <view class="mute-btn__cone"></view>
+      <view class="mute-btn__wave"></view>
+    </view>
+  </view>
+
+  <view class="back-btn" catchtap="goBack">
+    <view class="back-btn__ring"></view>
+    <view class="back-btn__label">回</view>
+  </view>
+  <view class="paper"></view>
+</view>

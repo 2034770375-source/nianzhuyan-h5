@@ -1,0 +1,9 @@
+# 整仓库按 LF 存，避免 Windows 与 CI 之间反复出现"整文件都改了"的假差异；
+# 例外是 Windows 脚本，CRLF 才是它们该有的样子。
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.zip binary

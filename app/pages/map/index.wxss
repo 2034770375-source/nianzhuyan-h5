@@ -1,0 +1,1027 @@
+.map {
+  background: #fff6e9;
+}
+
+.map__viewport {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.map__canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  opacity: 0;
+  will-change: transform;
+}
+
+.map__canvas.is-in {
+  opacity: 1;
+  transition: opacity 520ms ease-out;
+}
+
+.map__full {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* --------------------------- 风琴本：折面 --------------------------- */
+
+/*
+ * 六折风琴本。每一折是一块 400 x 1200 的纸，位置与宽度由 js 每帧写入
+ * （left / width / --lip），折面内部的内容整体左移 k * 400，用同一张画布图取切片。
+ */
+.fold {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #fff6e9;
+}
+
+/* 已经摊开的那一段纸：垫在最下面，给整条纸一圈投影，像摆在桌上 */
+.fold-paper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 400px;
+  background: #fff6e9;
+  box-shadow: 0 12px 34px rgba(72, 20, 14, 0.2), 0 3px 8px rgba(72, 20, 14, 0.1);
+}
+
+.fold__bg {
+  position: absolute;
+}
+
+/* 折痕的暗部：贴在每折左缘，摊开之后仍然留着 */
+.fold__crease {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(58, 43, 37, 0.11) 0%,
+    rgba(58, 43, 37, 0.045) 46%,
+    rgba(58, 43, 37, 0) 100%
+  );
+}
+
+/* 纸面沿 x 轴的极轻柱面渐变，让整折看起来有一点点弧度 */
+.fold__curve {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(58, 43, 37, 0.05) 0%,
+    rgba(255, 255, 255, 0.07) 14%,
+    rgba(255, 255, 255, 0.02) 48%,
+    rgba(58, 43, 37, 0.04) 100%
+  );
+}
+
+/* 正在被拉出来的那一折：右缘压一点阴影，像刚从折缝里掀起来 */
+.fold__lip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 46px;
+  /* 老内核不支持自定义属性时，宁可不显示这条抬起阴影 */
+  opacity: 0;
+  opacity: var(--lip, 0);
+  pointer-events: none;
+  background: linear-gradient(
+    270deg,
+    rgba(58, 43, 37, 0.18) 0%,
+    rgba(58, 43, 37, 0.05) 44%,
+    rgba(58, 43, 37, 0) 100%
+  );
+}
+
+/* 折缝本体：一道很细的亮线 */
+.fold__seam {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 246, 233, 0) 0%,
+    rgba(255, 246, 233, 0.5) 12%,
+    rgba(255, 246, 233, 0.5) 88%,
+    rgba(255, 246, 233, 0) 100%
+  );
+}
+
+/* --------------------------- 合起时的封面 --------------------------- */
+
+.book-cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 400px;
+  height: 1200px;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: 0 50%;
+  /* 封面现在是一张"吊牌放在纸面上"：底铺纸色，形制全在 cover_tag.png 里，
+     连投影都烘进图里了，所以这里不再画背景渐变与整块阴影 */
+  background: #fff6e9;
+}
+
+.book-cover__tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 400px;
+  height: 1200px;
+}
+
+/* 封面主视觉：拼豆小猪（宽 260，落在吊牌内框里，筷子伸到右缘） */
+.book-cover__art {
+  position: absolute;
+  left: 56px;
+  top: 280px;
+  width: 260px;
+  height: 190.94px;
+  /* 轴心压在筷子那一端，小猪才会轻轻晃、筷子不跑 */
+  transform-origin: 100% 55%;
+  animation: np-cover-float 5.2s ease-in-out infinite;
+}
+
+.book-cover__art-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 190.94px;
+}
+
+/* 爱心：同一张图裁一小块盖在爱心位置上，只放大不缩小，底图那颗始终被盖住 */
+.book-cover__heart {
+  position: absolute;
+  left: 181.35px;
+  top: 11.7px;
+  width: 19.5px;
+  height: 15.6px;
+  overflow: hidden;
+  animation: np-cover-heart 3.8s ease-in-out infinite;
+}
+
+.book-cover__heart-img {
+  position: absolute;
+  left: -181.35px;
+  top: -11.7px;
+  width: 260px;
+  height: 190.94px;
+}
+
+@keyframes np-cover-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-0.7deg);
+  }
+}
+
+@keyframes np-cover-heart {
+  0%,
+  74%,
+  100% {
+    transform: scale(1);
+  }
+  82% {
+    transform: scale(1.16);
+  }
+  90% {
+    transform: scale(1.04);
+  }
+}
+
+/*
+ * 竖排书名：年 / 猪 / 宴 三个字竖排叠成一条（吊牌版去掉了原来的三个金方框）。
+ * 字号、颜色都写在 .book-cover__title-box 这个真实存在的元素上——
+ * 早先写在 `.book-cover__title text` 上，而 WXML 里没有 <text> 子节点，
+ * 真机整条规则都没生效；这里不再用后代选择器。
+ */
+.book-cover__title {
+  position: absolute;
+  left: 50%;
+  top: 536px;
+  width: 112px;
+  margin-left: -56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.book-cover__title-box {
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 这三个字用 28 格标题字：14 格 Bold 下「猪/宴」的笔画会糊在一起 */
+  font-family: var(--np-font-stamp);
+  font-size: 112px;
+  font-weight: 400;
+  line-height: 1;
+  color: #ffe7a8;
+  /* 年红底上给字一层深红投影，笔画才立得住 */
+  text-shadow: 0 3px 0 rgba(122, 23, 18, 0.55);
+}
+
+/* 字与字之间留 8px 缝：用相邻兄弟选择器，老内核也稳 */
+.book-cover__title-box + .book-cover__title-box {
+  margin-top: 8px;
+}
+
+.book-cover__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.book-cover__hint-text {
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: rgba(255, 231, 168, 0.92);
+}
+
+.book-cover__arrow {
+  margin-top: 18px;
+  width: 42px;
+  height: 42px;
+  border-top: 4px solid #ffe7a8;
+  border-right: 4px solid #ffe7a8;
+  animation: np-cover-arrow 1.9s ease-in-out infinite;
+}
+
+@keyframes np-cover-arrow {
+  0%,
+  100% {
+    transform: rotate(45deg) translate(0, 0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: rotate(45deg) translate(9px, -9px);
+    opacity: 1;
+  }
+}
+
+/* --------------------------- 小猪：可动图层 --------------------------- */
+
+.pig {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 84%;
+}
+
+.pig__breathe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 84%;
+  animation: np-pig-breathe 3.6s ease-in-out infinite;
+}
+
+.pig__layer {
+  position: absolute;
+}
+
+/* 眨眼 / 打哈欠：用身体本色盖住眼睛那一颗豆 */
+.pig__cover {
+  opacity: 0;
+  transition: opacity 90ms ease-out;
+}
+
+.pig__cover.is-on {
+  opacity: 1;
+}
+
+.pig__eyes-happy {
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.pig__eyes-happy.is-on {
+  opacity: 1;
+}
+
+.pig__blush {
+  opacity: 0;
+  transition: opacity 280ms ease-out;
+}
+
+.pig.is-patting .pig__blush {
+  opacity: 1;
+}
+
+.pig__mouth {
+  opacity: 0;
+  transform: scaleY(0.2);
+  transform-origin: 50% 0;
+  transition: transform 320ms ease-out, opacity 220ms ease-out;
+}
+
+.pig__mouth.is-on {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* 被馋到：吐舌头舔一下嘴 */
+.pig__tongue {
+  opacity: 0;
+  transform: scaleY(0.2);
+  transform-origin: 50% 0;
+}
+
+.pig__tongue.is-on {
+  opacity: 1;
+  animation: np-tongue-lick 860ms ease-in-out;
+}
+
+@keyframes np-tongue-lick {
+  0% {
+    transform: scaleY(0.2) translateX(0);
+    opacity: 0;
+  }
+  20% {
+    transform: scaleY(1) translateX(0);
+    opacity: 1;
+  }
+  52% {
+    transform: scaleY(1) translateX(-16px);
+    opacity: 1;
+  }
+  78% {
+    transform: scaleY(1) translateX(12px);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.3) translateX(0);
+    opacity: 0;
+  }
+}
+
+/* 被摸头：身体轻轻一沉，尾巴快速摇 */
+.pig.is-patting .pig__breathe {
+  animation: none;
+  transform: scale(1.01, 1.018);
+  transition: transform 300ms ease-out;
+}
+
+.pig.is-patting .pig__tail {
+  animation: np-tail-wag 420ms ease-in-out infinite;
+}
+
+/* 打哈欠：深吸一口气 */
+.pig.is-yawning .pig__breathe {
+  animation: np-pig-yawn 2s ease-in-out;
+}
+
+/* 开席：笑眼 + 腮红 */
+.pig.is-feast .pig__eyes {
+  opacity: 0;
+}
+
+.pig.is-feast .pig__eyes-happy {
+  opacity: 1;
+}
+
+.pig.is-feast .pig__blush {
+  opacity: 1;
+}
+
+@keyframes np-pig-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.005, 1.014);
+  }
+}
+
+@keyframes np-pig-yawn {
+  0% {
+    transform: scale(1, 1);
+  }
+  35% {
+    transform: scale(1.008, 1.03);
+  }
+  70% {
+    transform: scale(1.004, 1.012);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+@keyframes np-tail-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes np-tail-wag {
+  0%,
+  100% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(11deg);
+  }
+}
+
+@keyframes np-ear-l {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes np-ear-r {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+/* --------------------------- 桌上的菜（宴席进度） --------------------------- */
+
+.map__secret {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.map__secret-img {
+  animation-name: np-secret-sway;
+  animation-duration: 6.4s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* 找到过的会微微抬头，像是认识你了 */
+.map__secret-img.is-found {
+  animation-name: np-secret-sway;
+  filter: drop-shadow(0 0 6px rgba(255, 231, 168, 0.55));
+}
+
+.map__secret-img.is-pop {
+  animation: np-secret-pop 880ms cubic-bezier(0.34, 1.5, 0.64, 1);
+}
+
+@keyframes np-secret-sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1.6deg);
+  }
+}
+
+@keyframes np-secret-pop {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  26% {
+    transform: translateY(-22px) scale(1.16) rotate(-6deg);
+  }
+  52% {
+    transform: translateY(0) scale(0.96) rotate(3deg);
+  }
+  74% {
+    transform: translateY(-7px) scale(1.04) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+.map__plate {
+  position: absolute;
+  z-index: 2;
+}
+
+.map__plate.is-drop {
+  animation: np-plate-drop 660ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes np-plate-drop {
+  0% {
+    transform: translateY(-90px) scale(1.12);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  72% {
+    transform: translateY(-12px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ------------------------------ 进度签 ------------------------------ */
+
+.map__progress {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10rpx;
+  padding: 8rpx 22rpx;
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.82);
+  border: 2rpx solid rgba(239, 184, 74, 0.75);
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  color: #8e1b14;
+}
+
+.map__progress-pig {
+  width: 28rpx;
+  height: 17rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  background: #e8b0a1;
+}
+
+.map__progress--secret {
+  margin-left: 12rpx;
+  border-color: rgba(216, 52, 42, 0.4);
+  color: #d8342a;
+}
+
+/* 「领我的年猪宴」：放在状态区，不再压住桌上的菜 */
+.map__progress--action {
+  margin-left: 12rpx;
+  background: linear-gradient(180deg, #e5574a 0%, #d8342a 100%);
+  border-color: #efb84a;
+  color: #fff6e9;
+  font-weight: 400;
+  box-shadow: 0 6rpx 18rpx rgba(142, 27, 20, 0.24);
+  animation: np-fade-in 500ms ease-out;
+}
+
+.secret-toast {
+  position: absolute;
+  left: 50%;
+  top: calc(214rpx + env(safe-area-inset-top));
+  transform: translateX(-50%);
+  padding: 16rpx 38rpx;
+  border-radius: 40rpx;
+  background: rgba(58, 43, 37, 0.86);
+  color: #ffe7a8;
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  white-space: nowrap;
+  z-index: 78;
+  animation: np-fade-in 400ms ease-out;
+}
+
+/* ------------------------------ 开席高潮 ------------------------------ */
+
+.feast {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.feast__flash {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(255, 240, 200, 0.95) 0%,
+    rgba(255, 196, 120, 0.42) 45%,
+    rgba(255, 246, 233, 0) 76%
+  );
+  animation: np-feast-flash 2600ms ease-out forwards;
+}
+
+.feast__burst {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 240, 205, 0.95) 0%,
+    rgba(255, 200, 130, 0.5) 34%,
+    rgba(255, 246, 233, 0) 72%
+  );
+  animation: np-feast-burst 1900ms ease-out forwards;
+}
+
+.feast__text {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  font-size: 84rpx;
+  font-weight: 400;
+  letter-spacing: 8rpx;
+  color: #d8342a;
+  text-shadow: 0 4rpx 0 #ffe7a8, 0 10rpx 30rpx rgba(142, 27, 20, 0.3);
+  animation: np-feast-text 2900ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes np-feast-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes np-feast-burst {
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes np-feast-text {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  38% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+}
+
+/* ---------------------- 图片加载失败时的兜底提示 ---------------------- */
+
+.map__error {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 36rpx 48rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.94);
+  border: 3rpx solid rgba(239, 184, 74, 0.85);
+  box-shadow: 0 12rpx 32rpx rgba(142, 27, 20, 0.14);
+  text-align: center;
+  z-index: 46;
+}
+
+.map__error-text {
+  font-size: 28rpx;
+  color: #8e1b14;
+}
+
+.map__error-btn {
+  margin-top: 16rpx;
+  padding: 12rpx 32rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(180deg, #e5574a 0%, #d8342a 100%);
+  color: #fff6e9;
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+}
+
+/* --------------------------- 看整只猪 / 看细节 --------------------------- */
+
+.map__tools {
+  position: absolute;
+  left: 32rpx;
+  bottom: calc(60rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 26rpx 14rpx 18rpx;
+  border-radius: 44rpx;
+  background: rgba(255, 255, 255, 0.84);
+  border: 3rpx solid rgba(239, 184, 74, 0.7);
+  box-shadow: 0 8rpx 24rpx rgba(142, 27, 20, 0.12);
+}
+
+/* 合上：把那本风琴本收起来，和「看整只猪」并排 */
+.fold-btn {
+  display: flex;
+  align-items: center;
+  margin-left: 14rpx;
+  padding: 14rpx 26rpx 14rpx 18rpx;
+  border-radius: 44rpx;
+  background: rgba(255, 255, 255, 0.84);
+  border: 3rpx solid rgba(216, 52, 42, 0.42);
+  box-shadow: 0 8rpx 24rpx rgba(142, 27, 20, 0.12);
+}
+
+.fold-btn__icon {
+  position: relative;
+  width: 36rpx;
+  height: 30rpx;
+  margin-right: 12rpx;
+}
+
+.fold-btn__leaf {
+  position: absolute;
+  top: 5rpx;
+  width: 15rpx;
+  height: 22rpx;
+  border: 2rpx solid #d8342a;
+  border-radius: 3rpx;
+  background: rgba(216, 52, 42, 0.1);
+}
+
+.fold-btn__leaf--a {
+  left: 2rpx;
+  transform: skewY(-9deg);
+}
+
+.fold-btn__leaf--b {
+  left: 19rpx;
+  transform: skewY(9deg);
+}
+
+.fold-btn__label {
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  color: #8e1b14;
+}
+
+.view-toggle__pig {
+  position: relative;
+  width: 52rpx;
+  height: 30rpx;
+  margin-right: 12rpx;
+}
+
+.view-toggle__pig-body {
+  position: absolute;
+  left: 0;
+  bottom: 2rpx;
+  width: 34rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  background: #e8b0a1;
+}
+
+.view-toggle__pig-head {
+  position: absolute;
+  left: 24rpx;
+  top: 0;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #f0bdb0;
+}
+
+.view-toggle.is-full .view-toggle__pig {
+  transform: scale(0.86);
+  opacity: 0.75;
+}
+
+.view-toggle__label {
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  color: #8e1b14;
+}
+
+/* ------------------------------- 热区 ------------------------------- */
+
+.hotspot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hotspot__glow {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: np-breathe 2.6s ease-in-out infinite;
+}
+
+.hotspot__ring {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 236, 190, 0.72);
+  box-shadow: 0 0 14px rgba(255, 214, 150, 0.45);
+}
+
+.hotspot.is-hot .hotspot__glow {
+  animation: none;
+  opacity: 1;
+  transform: scale(1.25);
+  transition: all 220ms ease-out;
+}
+
+.hotspot.is-done .hotspot__ring {
+  border-style: solid;
+  border-color: rgba(239, 184, 74, 0.9);
+}
+
+@keyframes np-ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------- 标题 ------------------------------- */
+
+.map__head {
+  position: absolute;
+  left: 40rpx;
+  top: calc(30rpx + env(safe-area-inset-top));
+  z-index: 30;
+}
+
+.map__title {
+  font-size: 56rpx;
+  font-weight: 400;
+  letter-spacing: 6rpx;
+  /* 左上角标题也是「年猪宴」三个字，同样用 28 格标题字（56rpx = 28px = 28 × 1） */
+  font-family: var(--np-font-stamp);
+  color: #d8342a;
+  text-shadow: 0 2rpx 10rpx rgba(142, 27, 20, 0.12);
+}
+
+.map__sub {
+  margin-top: 6rpx;
+  font-size: 28rpx;
+  letter-spacing: 3rpx;
+  color: rgba(58, 43, 37, 0.66);
+}
+
+/* ------------------------------ 菜名标签 ------------------------------ */
+
+.dish-tag {
+  position: absolute;
+  transform: translate(-50%, -132%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 40;
+  animation: np-tag-in 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.dish-tag__box {
+  padding: 14rpx 34rpx;
+  border-radius: 40rpx;
+  /* 年红再深一档，压住地图上的红底与热区金环；金边与纸白字不变 */
+  background: linear-gradient(180deg, #d8342a 0%, #b8291e 100%);
+  border: 3rpx solid #efb84a;
+  color: #fff6e9;
+  font-size: 28rpx;
+  font-weight: 400;
+  letter-spacing: 3rpx;
+  white-space: nowrap;
+  box-shadow: 0 10rpx 26rpx rgba(142, 27, 20, 0.3);
+}
+
+.dish-tag__part {
+  margin-top: 8rpx;
+  padding: 4rpx 18rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 246, 233, 0.92);
+  color: #8e1b14;
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  white-space: nowrap;
+}
+
+@keyframes np-tag-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -92%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -132%) scale(1);
+  }
+}
+
+/* ------------------------------- 引导 ------------------------------- */
+
+.map__guide {
+  position: absolute;
+  left: 50%;
+  bottom: calc(208rpx + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22rpx 36rpx;
+  border-radius: 44rpx;
+  background: rgba(255, 255, 255, 0.86);
+  border: 3rpx solid rgba(239, 184, 74, 0.7);
+  box-shadow: 0 10rpx 30rpx rgba(142, 27, 20, 0.12);
+  z-index: 45;
+  animation: np-fade-in 600ms ease-out;
+}
+
+.map__guide-hand {
+  width: 54rpx;
+  height: 30rpx;
+  border-radius: 30rpx;
+  background: radial-gradient(circle at 40% 40%, #ffe7a8 0%, #efb84a 100%);
+  box-shadow: 0 0 20rpx rgba(239, 184, 74, 0.8);
+  animation: np-guide-slide 2.2s ease-in-out infinite;
+}
+
+.map__guide-text {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  letter-spacing: 2rpx;
+  color: #3a2b25;
+}
+
+@keyframes np-guide-slide {
+  0%,
+  100% {
+    transform: translateX(-26rpx);
+  }
+  50% {
+    transform: translateX(26rpx);
+  }
+}

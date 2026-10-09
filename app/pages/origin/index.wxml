@@ -1,0 +1,35 @@
+<view class="stage origin">
+  <view class="warm-backdrop"></view>
+
+  <view class="origin__head">
+    <view class="origin__badge">{{badge}}</view>
+    <view class="origin__title">{{title}}</view>
+    <view class="origin__sub">{{subtitle}}</view>
+  </view>
+
+  <view class="origin__body">
+    <view class="origin__para" wx:for="{{paras}}" wx:key="index">
+      <view class="origin__dot"></view>
+      <text>{{item}}</text>
+    </view>
+
+    <view class="origin__fact" wx:if="{{fact}}">
+      <text>{{fact}}</text>
+    </view>
+  </view>
+
+  <view class="origin__foot">
+    <text>上菜顺序：{{sequence}}</text>
+  </view>
+
+  <view class="origin__more" wx:if="{{mode === 'dish'}}" catchtap="goOverview">
+    看整桌菜的来历 ›
+  </view>
+
+  <view class="origin__back" catchtap="onBack">
+    <view class="origin__back-ring"></view>
+    <view class="origin__back-label">回</view>
+  </view>
+
+  <view class="paper"></view>
+</view>

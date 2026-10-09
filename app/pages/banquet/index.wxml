@@ -1,0 +1,33 @@
+<view class="stage banquet">
+  <view class="warm-backdrop"></view>
+  <firework></firework>
+  <gold-dust count="22"></gold-dust>
+
+  <view class="banquet__head">
+    <view class="banquet__title">{{title}}</view>
+    <view class="banquet__sub">{{subtitle}}</view>
+  </view>
+
+  <view class="banquet__grid">
+    <view class="banquet__cell" wx:for="{{list}}" wx:key="id">
+      <view class="banquet__plate">
+        <image class="banquet__img" src="{{item.src}}" mode="aspectFit"></image>
+      </view>
+      <view class="banquet__name">{{item.title}}</view>
+    </view>
+  </view>
+
+  <view class="banquet__bless">{{bless}}</view>
+
+  <view class="banquet__actions">
+    <view class="banquet__btn" catchtap="onSave">{{saveText}}</view>
+    <view class="banquet__btn banquet__btn--ghost" catchtap="onBack">回地图看看</view>
+  </view>
+
+  <view class="banquet__link" catchtap="goOrigin">这一桌菜的来历 ›</view>
+
+  <view class="banquet__toast" wx:if="{{toast}}">{{toast}}</view>
+
+  <canvas type="2d" id="card" class="banquet__canvas"></canvas>
+  <view class="paper"></view>
+</view>

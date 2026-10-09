@@ -1,0 +1,12 @@
+<view
+  class="elf {{flip ? 'elf--flip' : ''}} {{trained ? 'is-trained' : ''}}"
+  style="{{posStyle}}"
+  catchtap="onTap"
+>
+  <view class="elf__inner {{actionClass}}" style="{{acting ? actionStyle : ''}}">
+    <image class="elf__body" src="{{body}}" mode="aspectFit"></image>
+    <image class="elf__arm {{actionClass}}" style="{{acting ? actionStyle : ''}}" src="{{arm}}" mode="aspectFit"></image>
+    <view class="elf__puff" wx:if="{{actionClass === 'is-act2'}}"></view>
+    <view class="elf__star" wx:if="{{star}}"></view>
+  </view>
+</view>

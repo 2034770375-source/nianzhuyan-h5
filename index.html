@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3a2b25">
+<title>年猪宴 · 交互绘本</title>
+<!-- 双击本文件即可运行；不需要服务器、不联网、不依赖微信 -->
+<link rel="stylesheet" href="runtime/np-runtime.css">
+</head>
+<body>
+
+  <div id="np-stage">
+    <div id="np-device">
+      <div id="np-screen"></div>
+    </div>
+  </div>
+
+  <div id="np-boot">年猪宴 · 正在上桌…</div>
+
+  <script>window.NP_APP_ROOT = 'app/';</script>
+  <!-- app/bundle.js 由 _build/build.mjs 从「年猪宴小程序」工程生成 -->
+  <script src="app/bundle.js"></script>
+  <script src="runtime/np-runtime.js"></script>
+</body>
+</html>
