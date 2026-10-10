@@ -9,4 +9,8 @@ dist/
 # 而且里面是局域网地址（192.168.x.x），不该进公开仓库
 二维码/
 
+# 腾讯云凭据（SecretId / SecretKey）：只放在本地，绝不进仓库
+.cos.json
+*.cos-credentials.json
+
 node_modules/

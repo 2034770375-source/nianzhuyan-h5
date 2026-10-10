@@ -461,6 +461,92 @@ export function toText(modules) {
   return modules.map((row) => row.map((v) => (v ? '█' : '·')).join('')).join('\n');
 }
 
+/* ------------------------------ 成图校验 ------------------------------ */
+
+/*
+ * 印厂认的是那张 PNG，不是内存里的矩阵。所以除了"编码→解码"往返，
+ * 还要对着真正要交付的图片再验两件事：
+ *   1. 每个模块区域内的像素必须纯黑或纯白（证明缩放没插值出灰边——
+ *      灰边会让扫码器算出错误的模块边界，是二维码印刷最常见的死法）；
+ *   2. 从这张 PNG 的像素反推出矩阵，再解码一次，读回内容必须与原文一致。
+ */
+export async function verifyPng(file, text, quiet = 4) {
+  const expected = encodeQR(text);
+  const N = expected.size + quiet * 2;
+
+  const { data, info } = await sharp(file).greyscale().raw().toBuffer({ resolveWithObject: true });
+  const { width, height } = info;
+
+  const problems = [];
+  if (width !== height) problems.push(`不是正方形：${width}×${height}`);
+  const scale = width / N;
+  if (!Number.isInteger(scale) || scale < 1) {
+    problems.push(`边长 ${width} 不是 ${N} 个模块的整数倍（每模块 ${scale} 像素）`);
+  }
+  if (problems.length) return { ok: false, problems, expected, N, scale: null };
+
+  /* 逐模块取样：先确认块内像素完全一致，再取左上角像素作为该模块的值 */
+  const got = [];
+  const dirty = [];
+  for (let r = 0; r < N; r += 1) {
+    const row = [];
+    for (let c = 0; c < N; c += 1) {
+      let first = null;
+      let uniform = true;
+      for (let dy = 0; dy < scale; dy += 1) {
+        const base = (r * scale + dy) * width + c * scale;
+        for (let dx = 0; dx < scale; dx += 1) {
+          const v = data[base + dx];
+          if (first === null) first = v;
+          else if (v !== first) uniform = false;
+        }
+      }
+      if (!uniform && dirty.length < 5) dirty.push(`模块(${c},${r})`);
+      row.push(first > 127 ? 0 : 1);          /* 深色记 1，浅色记 0 */
+    }
+    got.push(row);
+  }
+  if (dirty.length) problems.push('这些模块里出现了灰边（插值污染）：' + dirty.join(' '));
+
+  /* 去掉静区，与编码矩阵逐格比对 */
+  const inner = got.slice(quiet, quiet + expected.size).map((row) => row.slice(quiet, quiet + expected.size));
+  let diff = 0;
+  for (let r = 0; r < expected.size; r += 1) {
+    for (let c = 0; c < expected.size; c += 1) {
+      if (inner[r][c] !== (expected.modules[r][c] ? 1 : 0)) diff += 1;
+    }
+  }
+  if (diff) problems.push(`${diff} 个模块与编码矩阵不一致`);
+
+  /* 静区必须是纯白：有脏点一样会干扰扫描 */
+  let quietDirty = 0;
+  for (let r = 0; r < N; r += 1) {
+    for (let c = 0; c < N; c += 1) {
+      const inQuiet = r < quiet || c < quiet || r >= N - quiet || c >= N - quiet;
+      if (inQuiet && got[r][c] === 1) quietDirty += 1;
+    }
+  }
+  if (quietDirty) problems.push(`静区里有 ${quietDirty} 个深色模块（静区必须是纯白）`);
+
+  /* 从 PNG 反解：这一步才真正回答"扫这张图能扫出什么" */
+  let decoded = null;
+  try {
+    decoded = decodeQR({
+      version: expected.version,
+      level: expected.level,
+      mask: expected.mask,
+      size: expected.size,
+      modules: inner,
+      functionModules: expected.functionModules
+    });
+  } catch (e) {
+    problems.push('从 PNG 反解失败：' + e.message);
+  }
+  if (decoded && decoded.text !== text) problems.push(`从 PNG 读回的是「${decoded.text}」，不是原文`);
+
+  return { ok: problems.length === 0, problems, expected, N, scale, decoded };
+}
+
 /* ------------------------------ CLI ------------------------------ */
 
 const args = process.argv.slice(2);
@@ -491,6 +577,25 @@ async function main() {
     return;
   }
 
+  /* 单独校验一张已有的码图（比如印厂回传的打样稿）：
+     node _build/qr.mjs --verify 某张.png --text "https://nianzhuyan.com/" */
+  if (args.includes('--verify')) {
+    const target = argOf('verify', null);
+    const text = argOf('text', null);
+    if (!target || !text) {
+      console.log('用法：--verify <图片.png> --text <原本要编码的内容>');
+      process.exitCode = 1;
+      return;
+    }
+    const v = await verifyPng(target, text);
+    console.log(`校验 ${target}`);
+    console.log(`  ${v.ok ? '✓' : '✗'} 矩阵 ${v.N}×${v.N}（每模块 ${v.scale} 像素），应读回：${text}`);
+    if (v.decoded) console.log(`  从 PNG 实际读回：${v.decoded.text}`);
+    v.problems.forEach((p) => console.log('  ✗ ' + p));
+    if (!v.ok) process.exitCode = 1;
+    return;
+  }
+
   if (args.includes('--debug-format')) {
     const r = encodeQR(argOf('text', 'http://192.168.5.67:8080/'));
     const size = r.size;
@@ -518,7 +623,7 @@ async function main() {
 
   const text = argOf('text', null);
   if (!text) {
-    console.log('用法：--selftest | --text <内容> [--out 图片.png] [--svg 文件.svg] [--dump]');
+    console.log('用法：--selftest | --text <内容> [--out 图片.png] [--svg 文件.svg] [--dump] | --verify <图片.png> --text <内容>');
     process.exitCode = 1;
     return;
   }
@@ -539,7 +644,10 @@ async function main() {
   const out = argOf('out', null);
   if (out) {
     const N = r.size + 8;
-    const scale = Math.max(1, Math.floor(1024 / N));      /* 整数倍，避免任何插值 */
+    /* 每模块多少像素：默认凑到约 1024px；印版上可以直接指定（--module-px 11），
+       让"图片像素"和"印刷设备像素"1:1 对齐，缩放环节一步都不经过插值。 */
+    const wantPx = Number(argOf('module-px', ''));
+    const scale = Number.isInteger(wantPx) && wantPx > 0 ? wantPx : Math.max(1, Math.floor(1024 / N));
     const png = await sharp(Buffer.from(svg), { density: 72 })
       .resize(N * scale, N * scale, { kernel: 'nearest' })
       .png({ compressionLevel: 9 })
@@ -547,6 +655,16 @@ async function main() {
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(out, png);
     console.log(`  PNG → ${out}（${N * scale}×${N * scale}，每模块 ${scale} 像素）`);
+
+    /* 出完图立刻对着这张 PNG 再验一遍：逐像素比矩阵、静区是否纯白、反解读回 */
+    const v = await verifyPng(out, text);
+    if (v.ok) {
+      console.log(`  ✓ 成图校验通过：${v.N}×${v.N} 矩阵每模块 ${v.scale} 像素，无灰边，静区干净，从 PNG 反解读回一致`);
+    } else {
+      console.error('  ✗ 成图校验未通过：');
+      v.problems.forEach((p) => console.error('    ' + p));
+      process.exitCode = 1;
+    }
   }
   if (args.includes('--dump')) console.log(toText(r.modules));
 }
